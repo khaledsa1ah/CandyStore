@@ -1,12 +1,11 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Scanner;
 import java.util.ArrayList;
 
+
 public class CandyShop {
     private static final String USER_FILE = "users.txt";
-    private static final String DELIMITER = ":";
+    private static final String DELIMITER = "\\|";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -36,10 +35,9 @@ public class CandyShop {
 
                 if (choice == 1) {
                     catalog.printCatalog();
-                }
-                else if (choice == 2) {
+                } else if (choice == 2) {
                     catalog.printCatalog();
-                    cart = placeOrder(catalog,currentUser);
+                    cart = placeOrder(catalog, currentUser);
                     if (cart != null) {
                         cart.checkout(currentUser);
                         cart = null;
@@ -62,23 +60,103 @@ public class CandyShop {
         Scanner scanner = new Scanner(System.in);
         File file = new File(USER_FILE);
 
-        System.out.println("Enter your name:");
-        String name = scanner.nextLine();
+        // Validate name
+        String name = "";
+        boolean isNameValid = false;
+        while (!isNameValid) {
+            System.out.println("Enter your name:");
+            name = scanner.nextLine().trim();
+            if (name.matches("^[a-zA-Z\\s]+$")) {
+                isNameValid = true;
+            } else {
+                System.out.println("Invalid input. Name should contain only letters and spaces.");
+            }
+        }
 
-        System.out.println("Enter your client ID:");
-        String clientId = scanner.nextLine();
+        String clientId = "";
+        boolean isClientIdValid = false;
+        while (!isClientIdValid) {
+            System.out.println("Enter your client ID:");
+            clientId = scanner.nextLine().trim();
+            try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] user = line.split(DELIMITER);
+                    if (user[1].equals(clientId)) {
+                        System.out.println("Invalid input. Client ID already exists.");
+                        isClientIdValid = false;
+                        break;
+                    } else {
+                        isClientIdValid = true;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-        System.out.println("Enter your address:");
-        String address = scanner.nextLine();
+        String address = "";
+        while (address.isEmpty()) {
+            System.out.println("Enter your address:");
+            address = scanner.nextLine().trim();
+        }
 
-        System.out.println("Enter your phone number:");
-        String phone = scanner.nextLine();
+        String phone = "";
+        boolean isPhoneValid = false;
+        while (!isPhoneValid) {
+            System.out.println("Enter your phone number (11 digits, starts with 010, 011, 012, or 015):");
+            phone = scanner.nextLine().trim();
+            if (phone.matches("^01[0125][0-9]{8}$")) {
+                isPhoneValid = true;
+            } else {
+                System.out.println("Invalid input. Phone number should be 11 digits and start with 010, 011, 012, or 015.");
+            }
+        }
 
-        System.out.println("Enter your email address:");
-        String email = scanner.nextLine();
+        // Validate email
+        String email = "";
+        boolean isEmailValid = false;
+        boolean isEmailUnique = true;
+        while (!isEmailValid || !isEmailUnique) {
+            System.out.println("Enter your email address:");
+            email = scanner.nextLine().trim();
+            if (email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                isEmailValid = true;
+                // Check if email is unique
+                try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        String[] user = line.split(DELIMITER);
+                        if (user[4].equals(email)) {
+                            System.out.println("\"Email address already exists. Please enter a unique email address.");
+                            isEmailUnique = false;
+                            break;
+                        } else {
+                            isEmailUnique = true;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Invalid input. Email address should be in the format of username@domain.com.");
+            }
+        }
 
-        System.out.println("Enter your password:");
-        String password = scanner.nextLine();
+        String password = "";
+        boolean isPasswordStrong = false;
+        while (!isPasswordStrong) {
+            System.out.println("Enter your password (at least 8 characters, containing letters, numbers, and symbols):");
+            password = scanner.nextLine().trim();
+            if (password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$")) {
+                isPasswordStrong = true;
+            } else {
+                System.out.println("Invalid input. Password should contain at least 8 characters, including letters, numbers, and symbols.");
+            }
+        }
+        //encrypt password using MD5
+        password = encryptPassword(password);
+
 
         try (FileWriter writer = new FileWriter(file, true)) {
             writer.write(name + DELIMITER + clientId + DELIMITER + address + DELIMITER + phone + DELIMITER + email + DELIMITER + password + "\n");
@@ -90,12 +168,35 @@ public class CandyShop {
         return new User(name, clientId, address, phone, email, password);
     }
 
+    private static String encryptPassword(String password) {
+        int shift = 3;
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < password.length(); i++) {
+            char c = password.charAt(i);
+            char encrypted = (char) (c + shift);
+            result.append(encrypted);
+        }
+        return result.toString();
+    }
+    private static String decryptPassword(String encryptedPassword) {
+        int shift = 3;
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < encryptedPassword.length(); i++) {
+            char c = encryptedPassword.charAt(i);
+            char decrypted = (char) (c - shift);
+            result.append(decrypted);
+        }
+        return result.toString();
+    }
+
+
+
     private static User login() {
         Scanner scanner = new Scanner(System.in);
         File file = new File(USER_FILE);
 
         System.out.println("Enter your E-mail:");
-        String username = scanner.nextLine();
+        String email = scanner.nextLine();
 
         System.out.println("Enter your password:");
         String password = scanner.nextLine();
@@ -109,21 +210,27 @@ public class CandyShop {
                 String clientId = parts[1];
                 String address = parts[2];
                 String phone = parts[3];
-                String email = parts[4];
+                String storedEmail = parts[4];
                 String storedPassword = parts[5];
 
-                if (username.equals(email) && password.equals(storedPassword)) {
-                    System.out.println("Login successful.");
-                    return new User(name, clientId, address, phone, email, password);
+                if (email.equals(storedEmail)) {
+                    if (password.equals(decryptPassword(storedPassword))) {
+                        System.out.println("Login successful.");
+                        return new User(name, clientId, address, phone, storedEmail, storedPassword);
+                    } else {
+                        System.out.println("Incorrect password.");
+                        return null;
+                    }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println("Invalid username or password.");
+        System.out.println("Invalid email or password.");
         return null;
     }
+
 
     private static ShoppingCart placeOrder(Catalog catalog, User user) {
         Scanner scanner = new Scanner(System.in);
