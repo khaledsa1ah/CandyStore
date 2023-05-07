@@ -1,0 +1,5 @@
+1:Chocolate Bar:1.99
+2:Gummy Bears:2.49
+3:Lollipop:0.99
+4:Jelly Cola:1.5
+5:Sweet Warms:2
