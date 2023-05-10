@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 public class CandyShop {
     private static final String USER_FILE = "users.txt";
-    private static final String DELIMITER = "\\|";
+    private static final String REED_DELIMITER = "\\|";
+    private static final String WRITE_DELIMITER = "|";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -81,7 +82,7 @@ public class CandyShop {
             try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String[] user = line.split(DELIMITER);
+                    String[] user = line.split(REED_DELIMITER);
                     if (user[1].equals(clientId)) {
                         System.out.println("Invalid input. Client ID already exists.");
                         isClientIdValid = false;
@@ -126,7 +127,7 @@ public class CandyShop {
                 try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        String[] user = line.split(DELIMITER);
+                        String[] user = line.split(REED_DELIMITER);
                         if (user[4].equals(email)) {
                             System.out.println("\"Email address already exists. Please enter a unique email address.");
                             isEmailUnique = false;
@@ -159,7 +160,7 @@ public class CandyShop {
 
 
         try (FileWriter writer = new FileWriter(file, true)) {
-            writer.write(name + DELIMITER + clientId + DELIMITER + address + DELIMITER + phone + DELIMITER + email + DELIMITER + password + "\n");
+            writer.write(name + WRITE_DELIMITER + clientId + WRITE_DELIMITER + address + WRITE_DELIMITER + phone + WRITE_DELIMITER + email + WRITE_DELIMITER + password + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -204,7 +205,7 @@ public class CandyShop {
         try (Scanner fileScanner = new Scanner(file)) {
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
-                String[] parts = line.split(DELIMITER);
+                String[] parts = line.split(REED_DELIMITER);
 
                 String name = parts[0];
                 String clientId = parts[1];
