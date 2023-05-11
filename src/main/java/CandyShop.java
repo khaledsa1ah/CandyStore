@@ -143,7 +143,17 @@ public class CandyShop {
                 System.out.println("Invalid input. Email address should be in the format of username@domain.com.");
             }
         }
+        //verify email using OTP
+        String otp = OTP.generateOTP();
+        new OTP().sendEmail(email, "toffeeshop0@gmail.com", "Toffee Store OTP","Your OTP is: " + otp);
+        System.out.println("Please enter the OTP sent to your email address: ");
+        String inputOTP = scanner.nextLine().trim();
+        while (!otp.equals(inputOTP)) {
+            System.out.println("Invalid OTP. Please enter the OTP sent to your email address: ");
+            inputOTP = scanner.nextLine().trim();
+        }
 
+        // Validate password
         String password = "";
         boolean isPasswordStrong = false;
         while (!isPasswordStrong) {
