@@ -19,4 +19,13 @@ public class Voucher {
     public String toString() {
         return code + " (" + discount + "%)";
     }
+
+    public String generateCode() {
+        String code = "";
+        for (int i = 0; i < 8; i++) {
+            code += (char) (Math.random() * 26 + 'A');
+        }
+        return code;
+    }
+
 }

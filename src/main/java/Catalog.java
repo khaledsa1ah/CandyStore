@@ -133,4 +133,19 @@ public class Catalog {
             e.printStackTrace();
         }
     }
+
+    public void searchForItem(String input) {
+        System.out.println("Search results for '" + input + "':");
+        boolean found = false;
+        for (Candy item : candies) {
+            if (item.getName().toLowerCase().contains(input.toLowerCase())) {
+                System.out.println(item.getName() + " - $" + item.getPrice());
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No results found.");
+        }
+    }
+
 }

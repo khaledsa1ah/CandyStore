@@ -1,5 +1,3 @@
-
-
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -43,8 +41,6 @@ public class OTP {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
         return flag;
     }
 
